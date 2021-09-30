@@ -1,5 +1,5 @@
 //REPLACE WITH YOUR PUBLIC KEY AVAILABLE IN: https://www.mercadopago.com/developers/panel
-const mp = new MercadoPago('YOUR_PUBLIC_KEY');
+const mp = new MercadoPago('TEST-46d40c84-f9aa-4d12-9428-5641ffd49df5');
 
 function loadCardForm() {
     const productCost = document.getElementById('amount').value;
@@ -52,13 +52,13 @@ function loadCardForm() {
         },
         callbacks: {
             onFormMounted: error => {
-                if (error) 
+                if (error)
                     return console.warn("Form Mounted handling error: ", error);
                 console.log("Form mounted");
             },
             onSubmit: event => {
                 event.preventDefault();
-            
+
                 const {
                     paymentMethodId,
                     issuerId,
@@ -69,8 +69,24 @@ function loadCardForm() {
                     identificationNumber,
                     identificationType,
                 } = cardForm.getCardFormData();
-            
-                fetch("/process_payment", {
+
+                // console.log(JSON.stringify({
+                //     token,
+                //     issuerId,
+                //     paymentMethodId,
+                //     transactionAmount: Number(amount),
+                //     installments: Number(installments),
+                //     description: productDescription,
+                //     payer: {
+                //         email,
+                //         identification: {
+                //             type: identificationType,
+                //             number: identificationNumber,
+                //         },
+                //     },
+                // }));
+
+                fetch("http://localhost:8088/process_payment", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -82,6 +98,7 @@ function loadCardForm() {
                         transactionAmount: Number(amount),
                         installments: Number(installments),
                         description: productDescription,
+                        identificationType,
                         payer: {
                             email,
                             identification: {
@@ -102,7 +119,7 @@ function loadCardForm() {
                 })
                 .catch(error => {
                     alert("Unexpected error\n"+JSON.stringify(error));
-                });;
+                });
             },
             onFetching: (resource) => {
               console.log("Fetching resource: ", resource);
@@ -117,14 +134,14 @@ function loadCardForm() {
 };
 
 //Handle transitions
-document.getElementById('checkout-btn').addEventListener('click', function(){ 
+document.getElementById('checkout-btn').addEventListener('click', function(){
     $('.container__cart').fadeOut(500);
-    setTimeout(() => { 
+    setTimeout(() => {
         loadCardForm();
-        $('.container__payment').show(500).fadeIn(); 
+        $('.container__payment').show(500).fadeIn();
     }, 500);
 });
-document.getElementById('go-back').addEventListener('click', function(){ 
+document.getElementById('go-back').addEventListener('click', function(){
     $('.container__payment').fadeOut(500);
     setTimeout(() => { $('.container__cart').show(500).fadeIn(); }, 500);
 });
